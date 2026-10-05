@@ -39,7 +39,7 @@ python tests/run_all_tests.py
 
 ## 隐私说明
 
-请勿把真实 Wi-Fi 密码、云服务 API 密钥、SSH 私钥、Token 或服务器内部路径提交到公开仓库。真实配置通过设备配置页面保存到 ESP32 内部存储；`PrivateConfig.h` 仅保留空模板。
+真实配置通过设备配置页面保存到 ESP32 内部存储；`PrivateConfig.h` 仅保留空模板。
 
 ## 项目状态
 
