@@ -1,0 +1,21 @@
+# Local secrets and credentials
+PrivateConfig.local.h
+**/PrivateConfig.local.h
+*.secret
+*.key
+.env
+.env.*
+
+# Build and local artifacts
+build/
+.cache/
+.vscode/
+.idea/
+*.o
+*.elf
+*.bin
+*.hex
+
+# OS/editor files
+.DS_Store
+Thumbs.db
