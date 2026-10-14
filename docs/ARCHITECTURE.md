@@ -7,7 +7,7 @@
 - `WristModel.h`、`MotionGuardModel.h`、`GripModel.h`：本地模型权重；不是云端聊天模型。
 - `FusionCore.h`、`FusionFeatures.h`、`WristMotionGate.h`：特征、握拳判断和运动保护。
 - `InputRouter.h`：手势和串口统一操作入口，网络业务期间禁入。
-- `GestureSensor.h`、`GestureCore.h`：历史规则版本保留，当前主程序不包含旧识别入口。
+- 旧 `GestureSensor.h`、`GestureCore.h` 和配套旧测试已从当前目录删除；原来版本可从Git历史和旧发布获取。
 
 ## 多任务与忙态
 

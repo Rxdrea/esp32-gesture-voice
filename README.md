@@ -30,7 +30,7 @@
 - [设计与模块分工](docs/ARCHITECTURE.md)
 - [验证范围与已知限制](docs/VALIDATION.md)
 - [更新记录](CHANGELOG.md)
-- [下载1.1.2公开版压缩包](https://github.com/Rxdrea/esp32-gesture-voice/releases/tag/v1.1.2)
+- [下载1.1.2公开版压缩包](https://github.com/Rxdrea/esp32-gesture-voice/releases/tag/v1.1.2-clean)
 
 ## 配置与隐私
 
@@ -39,6 +39,8 @@
 只编译：`powershell -ExecutionPolicy Bypass -File .\Compile.ps1`。该脚本不上传、不打开串口。
 
 当前模型离线验证入口：`python tests/run_all_tests.py`，环境和可选私人数据回放见验证文档。本次更新未执行该套件，不将历史测试结果作为当前版本全部通过的证据。
+
+当前目录已清理旧规则头文件与旧六步测试；原来版本源码可从Git历史或旧发布找回。
 
 ## 原来版本
 

@@ -1,6 +1,6 @@
 #pragma once
 // 本版活动识别入口：已验证的纯MPU手腕模型与肌电握拳模型。
-// GestureSensor.h保留为旧版本参考，不再参与编译。
+// 当前仅保留模型识别入口，废弃六步规则源码已移除。
 #include <Arduino.h>
 #include <Wire.h>
 #include <U8g2lib.h>

@@ -329,3 +329,7 @@ python tests/run_all_tests.py
 
 【2026-10-14 当前模型版】
 当前动作、接线和配置请参阅README.md与docs/USAGE.md。原六步校准说明仅适用于历史版本，当前活动入口为MlGestureSensor.h。
+
+
+【2026-10-14 旧代码清理】
+当前目录已删除GestureSensor.h、GestureCore.h及配套旧六步测试。当前入口MlGestureSensor.h和模型版验证仍保留。原来版本说明中的旧文件名仅是历史记录，不表示这些文件仍在当前目录。

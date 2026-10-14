@@ -9,7 +9,7 @@ const uint8_t LED_PINS[]={5,18,19};
 const int LED_THRESHOLDS[]={6,9,12};
 const uint32_t EMG_SAMPLE_RATE=500;
 const TickType_t EMG_TICKS=pdMS_TO_TICKS(2);
-// 32 点浮点包络（沿用 1.1.2 GestureCore.h）
+// 32 点浮点包络（沿用原版算法，已独立实现）
 class FloatEnvelope {
  public:
   float add(float filtered) {
@@ -25,7 +25,7 @@ class FloatEnvelope {
   unsigned index_ = 0;
 };
 
-// 佩戴过滤（沿用 1.1.2 GestureCore.h）：接触信号抖动过滤
+// 佩戴过滤（沿用原版算法，已独立实现）：接触信号抖动过滤
 class WearFilter {
  public:
   bool update(uint32_t now, bool high) {
