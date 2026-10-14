@@ -1,15 +1,17 @@
 /*
- * 手势语音识别版1.0：个性化六动作 → 拼音选字 → 联想候选 → 语音播报。
- * 打开本文件，保留同目录所有头文件；连接配置在PrivateConfig.h中本地填写。
- * 肌电S：GPIO34；L：GPIO2；灯：5/18/19；OLED与MPU：SDA21/SCL22。
- * MAX98357：BCLK26、LRC25、DIN27；蓝牙模块串口预留RX16/TX17。
- * 校准c/u/d/r/l/g；w/s上下、f分字、b返回、短握确认、长握x联想。
- * 请求/播报期间继续肌电采样，但丢弃操作；结束须回自然位放松再操作。
- * 这里的语音功能是将选中句子读出来，没有麦克风或语音输入。
- * 原main和独立六动作测试工程不改；未上传、未做云端或实物联调。
+ * 手势语音识别版1.1.2：本地模型动作 → 拼音 → 中文联想 → 选句播报。
+ * 活动识别入口MlGestureSensor.h；旧GestureSensor.h仅保留参考。
+ * 上/下翻选择，顺时针分隔，逆时针回退，右侧翻确认，握拳约1秒联想。
+ * 五种手腕动作只用MPU，握拳使用肌电及大致自然位，不再六步校准。
+ * 手机WiFi/API配置、GPIO33重置、两路预留串口和肌电LED保持。
+ * 网络/播放期间继续500Hz肌电采样，动作丢弃，结束后放松再操作。
  */
 
 #include <Arduino.h>
+#if defined(ARDUINO_ARCH_ESP32)
+// 模型、中文字形和网络库共用主循环任务，预留足够的嵌套调用余量。
+SET_LOOP_TASK_STACK_SIZE(16384);
+#endif
 #include "PrivateConfig.h"
 #if defined(ARDUINO_ARCH_ESP32)
 #include <Preferences.h>
@@ -19,7 +21,7 @@ void dispatchAction(char key, bool fromGesture);
 bool handleApplicationCommand(char key);
 void finishBusyInput();
 bool inputHealthy();
-#include "GestureSensor.h"
+#include "MlGestureSensor.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <WiFiClientSecure.h>
@@ -39,7 +41,7 @@ bool inputHealthy();
 
 const char* LLM_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
 const char* TTS_URL = "https://dashscope.aliyuncs.com/api/v1/services/audio/tts/SpeechSynthesizer";
-const char* DEBUG_SERVER_URL = "http://<your-server>:3000";
+const char* DEBUG_SERVER_URL = ""; // 公开版默认关闭私人调试服务器
 const char* DEBUG_DEVICE_ID = "esp32-main";
 uint32_t lastDebugSync=0;
 uint32_t lastDebugHeartbeat=0;
@@ -74,14 +76,14 @@ void startConfigPortal() {
   configServer.on("/",HTTP_GET,[](){ configServer.send(200,"text/html; charset=utf-8",configPage()); });
   configServer.on("/save",HTTP_POST,[](){ savedWifiSsid=configServer.arg("ssid"); savedWifiPass=configServer.arg("pass"); savedApiKey=configServer.arg("api"); saveConfig(); configServer.send(200,"text/html; charset=utf-8","已保存，设备正在重启"); delay(300); ESP.restart(); });
   configServer.begin(); configPortalActive=true;
-  Serial.printf("【配置】请连接热点%s，打开192.168.4.1配置。\\n",CONFIG_AP_NAME);
+  Serial.print("【配置】等待手机配置：连接热点");Serial.print(CONFIG_AP_NAME);Serial.println("，打开192.168.4.1。配置完成前暂停动作输入。");
 }
 void serviceConfigPortal() { if(configPortalActive) configServer.handleClient(); }
 #endif
 
 void postDebugLog(const String& message) {
 #if defined(ARDUINO_ARCH_ESP32)
-  if (savedWifiSsid.length()==0 || WiFi.status()!=WL_CONNECTED) return;
+  if (!DEBUG_SERVER_URL[0] || savedWifiSsid.length()==0 || WiFi.status()!=WL_CONNECTED) return;
   HTTPClient http;
   http.begin(String(DEBUG_SERVER_URL)+"/api/log");
   http.addHeader("Content-Type","application/json");
@@ -103,36 +105,7 @@ char remoteCommandFromJson(const String& json) {
 }
 
 void serviceRemoteCalibration() {
-#if defined(ARDUINO_ARCH_ESP32)
-  if (configPortalActive || savedWifiSsid.length()==0 || WiFi.status()!=WL_CONNECTED ||
-      gesture::collecting || gesture::calibration==gesture::Calibration::Complete) return;
-  const uint32_t now=millis();
-  if (uint32_t(now-lastDebugSync)<1000) return;
-  lastDebugSync=now;
-  HTTPClient http;
-  String base=String(DEBUG_SERVER_URL);
-  http.begin(base+"/api/command?device_id="+DEBUG_DEVICE_ID);
-  http.setTimeout(3000);
-  int code=http.GET();
-  if (code==200) {
-    String command=http.getString();
-    command.trim();
-    const char remote=remoteCommandFromJson(command);
-    if (remote) {
-      gesture::beginCalibration(remote);
-      http.end();
-      return;
-    }
-  }
-  http.end();
-  if (uint32_t(now-lastDebugHeartbeat)<10000) return;
-  lastDebugHeartbeat=now;
-  http.begin(base+"/api/heartbeat");
-  http.addHeader("Content-Type","application/json");
-  String body="{\"device_id\":\""+String(DEBUG_DEVICE_ID)+"\",\"step\":\""+String(gesture::calibrationName())+"\",\"progress\":\""+String(static_cast<unsigned>(gesture::captureCount))+"/100\",\"notice\":\""+String(gesture::notice)+"\"}";
-  int heartbeatCode=http.POST(body);
-  http.end();
-#endif
+  // 模型版不再轮询旧六步校准服务，避免同步HTTP打断100Hz姿态采样。
 }
 
 // ---- OLED 和字体 ----
@@ -279,6 +252,34 @@ String jsonEscape(String s) {
 
 // 把连续拼音交给 AI，让它分词并猜出 8 句最可能的中文
 // 成功返回 true，候选句放进 cands[]、个数放进 candCount
+const char* llmErrorHint="联想失败";
+int lastLlmHttpStatus=0;
+String lastLlmProviderCode;
+bool reportLlmFailure(const char* reason,int httpStatus,const String& response) {
+  llmErrorHint=reason;lastLlmHttpStatus=httpStatus;lastLlmProviderCode="";
+  JsonDocument errorDoc;
+  if(response.length() && !deserializeJson(errorDoc,response)) {
+    const char* raw=errorDoc["error"]["code"] | "";
+    if(!*raw)raw=errorDoc["code"] | "";
+    if(!*raw)raw=errorDoc["error"]["type"] | "";
+    // 只记录短错误码，不打印原始错误正文、请求头或配置密钥。
+    bool safe=std::strlen(raw)<=80 && std::strncmp(raw,"sk-",3)!=0;
+    for(const char* p=raw;*p && safe;++p) {
+      const char c=*p;
+      if(!((c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9')||c=='.'||c=='_'||c=='-'))safe=false;
+    }
+    if(safe)lastLlmProviderCode=raw;
+    if(lastLlmProviderCode=="Arrearage")llmErrorHint="云服务账户欠费";
+    else if(lastLlmProviderCode=="InvalidApiKey" || lastLlmProviderCode=="invalid_api_key")llmErrorHint="密钥或服务区域不匹配";
+    else if(lastLlmProviderCode=="AllocationQuota.FreeTierOnly")llmErrorHint="免费额度已用完";
+  }
+  applicationNotice=llmErrorHint;noticeStartedMs=millis();
+  Serial.print("【联想错误】HTTP状态=");Serial.print(httpStatus);
+  Serial.print("，原因=");Serial.print(llmErrorHint);
+  if(lastLlmProviderCode.length()){Serial.print("，服务错误码=");Serial.print(lastLlmProviderCode);}
+  Serial.println();
+  return false;
+}
 bool getCandidates(String pinyin) {
   if (!networkAvailable()) { unavailableNetwork(); return false; }
   BusyInputScope busy;
@@ -313,24 +314,24 @@ bool getCandidates(String pinyin) {
                "绝对不要输出对象、拼音、序号或任何解释，只要纯中文句子的字符串数组。";
   String user = "拼音（单引号 ' 分隔每个字）：" + pinyin;
 
-  String body = "{\"model\":\"qwen-turbo\",\"temperature\":0.2,\"messages\":["
+  String body = "{\"model\":\"qwen3.7-flash\",\"enable_thinking\":false,\"stream\":false,\"temperature\":0.2,\"messages\":["
                 "{\"role\":\"system\",\"content\":\"" + jsonEscape(sys) + "\"},"
                 "{\"role\":\"user\",\"content\":\"" + jsonEscape(user) + "\"}]}";
 
   int code = http.POST(body);
-  if (code != 200) {
-    Serial.printf("【联想错误】HTTP状态=%d\n", code);
-    http.end();
-    return false;
-  }
-  String resp = http.getString();
+  String resp = code>0 ? http.getString() : String("");
   http.end();
+  if (code != 200) {
+    const char* reason=code<0?"云服务连接失败":code==401?"密钥或服务区域不匹配":code==403?"云服务权限不足":code==429?"额度或调用次数受限":code==400?"联想请求参数错误":code==404?"模型或接口不可用":"云服务暂时异常";
+    if(code==-11)reason="云服务响应超时";
+    return reportLlmFailure(reason,code,resp);
+  }
 
   JsonDocument doc;
   if (deserializeJson(doc, resp)) {
-    Serial.println("【联想错误】响应解析失败");
-    return false;
+    return reportLlmFailure("服务响应解析失败",code,"");
   }
+  if(doc["error"].is<JsonObject>())return reportLlmFailure("云服务返回错误",code,resp);
   String content = String(doc["choices"][0]["message"]["content"] | "");
   content.trim();
   Serial.println("【候选】" + content);
@@ -342,9 +343,9 @@ bool getCandidates(String pinyin) {
 
   JsonDocument candDoc;
   if (deserializeJson(candDoc, content)) {
-    Serial.println("【候选错误】解析失败：" + content);
-    return false;
+    return reportLlmFailure("中文候选格式错误",code,"");
   }
+  if(!candDoc.is<JsonArray>())return reportLlmFailure("中文候选不是列表",code,"");
   JsonArray arr = candDoc.as<JsonArray>();
   candCount = 0;
   for (JsonVariant v : arr) {
@@ -359,7 +360,10 @@ bool getCandidates(String pinyin) {
     w.trim();
     if (w.length() > 0) cands[candCount++] = w;
   }
-  return candCount > 0;
+  if(candCount==0)return reportLlmFailure("没有返回中文候选",code,"");
+  lastLlmHttpStatus=code;lastLlmProviderCode="";llmErrorHint="";
+  applicationNotice=nullptr;
+  return true;
 }
 
 // 语音合成，中文 -> 音频(pcm)网址
@@ -562,7 +566,7 @@ void commitWord() {
   if (getCandidates(buf)) {
     state = S_CAND;
   } else {
-    drawStatus("联想失败");
+    drawStatus(llmErrorHint);
     delay(1500);
   }
 }
@@ -577,7 +581,7 @@ void goBack() {
 
 void drawInputHint() {
   const char* hint=busyDepth ? "正在处理请稍候" : gesture::inputHint(gesture::emgSnapshot());
-  if (inputHealthy() && gesture::recognizer.ready()) {
+  if (inputHealthy() && gesture::ready()) {
     if (applicationNotice && uint32_t(millis()-noticeStartedMs)<2000) hint=applicationNotice;
     else if (manualReady) hint=WiFi.status()==WL_CONNECTED ? "可以操作" : "可操作 网络未连接";
   }
@@ -617,12 +621,17 @@ void drawCand() {
 
 void draw() {
   if (!gesture::oledReady) return;
-  u8g2.setFontPosBaseline();
-  u8g2.firstPage();
-  do {
-    if (state == S_PINYIN) drawPinyin();
-    else drawCand();
-  } while (u8g2.nextPage());
+  String hint=busyDepth ? "正在处理请稍候" : gesture::inputHint(gesture::emgSnapshot());
+  if(applicationNotice && uint32_t(millis()-noticeStartedMs)<2000)hint=applicationNotice;
+  if(state==S_PINYIN) {
+    String input=buf.length()?tailOf(buf,128):String("（开始拼拼音）");
+    char letter[2]={curLetter(),0};
+    gesture::queueScreen(input.c_str(),letter,"右侧翻确认 握拳联想",hint.c_str(),nullptr,1);
+  } else {
+    int start=candIdx-2;if(start<0)start=0;if(start+4>candCount)start=candCount-4;if(start<0)start=0;
+    String rows[4];for(int i=0;i<4 && start+i<candCount;++i)rows[i]=tailOf((start+i==candIdx?"> ":"  ")+cands[start+i],128);
+    gesture::queueScreen(rows[0].c_str(),rows[1].c_str(),rows[2].c_str(),rows[3].c_str(),hint.c_str());
+  }
 }
 
 // ================= 输入 ==================
@@ -634,12 +643,7 @@ void discardSerialInput() {
 void finishBusyInput() {
   discardSerialInput();
   manualReady=false;
-  gesture::recognizer.reset();
-  gesture::gravityReady=false;
-  gesture::livePoseValid=false;
-  gesture::liveValid=false;
-  gesture::liveStable=false;
-  gesture::livePosture=0;
+  gesture::resetInput();
 }
 void beginBusyInput() {
   if (busyDepth++==0) finishBusyInput();
@@ -648,17 +652,12 @@ void endBusyInput() {
   if (busyDepth && --busyDepth==0) finishBusyInput();
 }
 bool inputHealthy() {
-  const gesture::EmgView emg=gesture::emgSnapshot();
-  return !busyDepth && gesture::samplingReady && gesture::mpuReady &&
-      gesture::liveValid && gesture::liveStable && gesture::livePoseValid &&
-      gesture::mpuSampleCurrent() && emg.worn && emg.warmed && !emg.wearUncertain &&
-      isfinite(emg.newEnv) && emg.newEnv>=0 && uint32_t(micros()-emg.timeUs)<20000 &&
-      emg.wearLosses==gesture::seenWearLosses &&
-      emg.wearPauses==gesture::seenWearPauses && emg.faults==gesture::seenFaults;
+  // 手腕动作只依赖新鲜MPU数据；握拳佩戴要求在按键x入口单独检查。
+  return !busyDepth && gesture::inputHealthy();
 }
 struct AppPort {
   bool calibrated() const {
-    return gesture::calibration==gesture::Calibration::Complete && !gesture::collecting;
+    return true; // 模型固化在程序中，无需旧六步校准。
   }
   bool inputHealthy() const { return ::inputHealthy(); }
   bool serialReady() const { return manualReady; }
@@ -668,7 +667,7 @@ struct AppPort {
   }
   bool networkAvailable() const { return ::networkAvailable(); }
   void unavailableNetwork() { ::unavailableNetwork(); }
-  void prepareManualAction() { manualReady=false; gesture::recognizer.reset(); }
+  void prepareManualAction() { manualReady=false; gesture::resetInput(); }
   void beginBusy() { beginBusyInput(); }
   void endBusy() { endBusyInput(); }
   void up() { moveUp(); }
@@ -681,8 +680,14 @@ struct AppPort {
 AppPort appPort;
 merged::InputRouter<AppPort> inputRouter(appPort);
 void dispatchAction(char key, bool fromGesture) {
-  if (busyDepth || inputRouter.busy()) return;
-  if (inputRouter.dispatch(key,fromGesture)) manualReady=false;
+  if (busyDepth || inputRouter.busy() || !gesture::allowAction(key)) return;
+  if(fromGesture && gesture::authorizedKey!=key)return;
+  if (inputRouter.dispatch(key,fromGesture)) {
+    manualReady=false;
+    Serial.print("【输入结果】拼音=");Serial.print(buf);
+    Serial.print("，当前字母=");Serial.print(curLetter());
+    Serial.print("，界面=");Serial.println(state==S_PINYIN?"拼音":"中文候选");
+  }
 }
 bool handleApplicationCommand(char key) {
   if (key>='A' && key<='Z') key=char(key-'A'+'a');
@@ -750,6 +755,7 @@ void checkResetButton() {
 void setup() {
   gesture::setup();
   pinMode(gesture::RESET_BUTTON_PIN,INPUT_PULLUP);
+  Serial.print("【启动】GPIO33重置按键电平=");Serial.println(digitalRead(gesture::RESET_BUTTON_PIN));
   manualReady=false;
 #if defined(ARDUINO_ARCH_ESP32)
   loadSavedConfig();
@@ -764,7 +770,7 @@ void setup() {
 #else
   Serial.println("【网络】当前编译环境不支持ESP32配置页面。");
 #endif
-  Serial.println("【操作】六步校准后，手势和串口w/s/空格/f/x/b使用同一入口。");
+  Serial.println("【操作】模型已加载，无需六步校准；右侧翻确认，握拳约1秒联想。");
   Serial.println("【提示】联想和播报期间不接收操作；结束后回自然位放松再继续。");
 }
 void loop() {
@@ -773,21 +779,27 @@ void loop() {
   serviceConfigPortal();
 #if defined(ARDUINO_ARCH_ESP32)
   if (configPortalActive) {
-    delay(5);
+    // 配置页期间仍可用p查询采样/佩戴，不能把等待配置误认为程序卡死。
+    gesture::receiveCommands();
+    gesture::serviceDisplay();
+    delay(1);
     return;
   }
 #endif
   printBrainValues();
   if (busyDepth || inputRouter.busy()) { discardSerialInput(); delay(1); return; }
+  gesture::repeatIntervalMs=state==S_CAND?450:300;
   gesture::loop();
-  manualReady=appPort.calibrated() && inputHealthy() && gesture::recognizer.ready();
+  manualReady=appPort.calibrated() && inputHealthy() && gesture::ready();
   handleInput();
   const uint32_t now=millis();
-  if (uint32_t(now-gesture::lastDrawMs)>=200) {
+  const uint32_t drawInterval=gesture::phase==gesture::Phase::Scroll?60:200;
+  if (uint32_t(now-gesture::lastDrawMs)>=drawInterval) {
     gesture::lastDrawMs=now;
-    if (!appPort.calibrated() || !gesture::mpuReady || !gesture::samplingReady)
+    if (!gesture::mpuReady)
       gesture::drawScreen();
     else draw();
   }
+  gesture::serviceDisplay();
   delay(1);
 }

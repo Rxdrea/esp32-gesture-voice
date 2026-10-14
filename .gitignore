@@ -19,3 +19,15 @@ build/
 # OS/editor files
 .DS_Store
 Thumbs.db
+
+# 私人采集数据、模型训练副本、压缩包与本地验证产物
+*.zip
+*.joblib
+*.csv
+__pycache__/
+*.pyc
+verification/pinyin-host-*/
+verification/compile.log
+verification/results.json
+verification/source_hashes.json
+verification/manifest.json
