@@ -30,6 +30,7 @@
 - [设计与模块分工](docs/ARCHITECTURE.md)
 - [验证范围与已知限制](docs/VALIDATION.md)
 - [更新记录](CHANGELOG.md)
+- [下载1.1.2公开版压缩包](https://github.com/Rxdrea/esp32-gesture-voice/releases/tag/v1.1.2)
 
 ## 配置与隐私
 
@@ -39,9 +40,13 @@
 
 当前模型离线验证入口：`python tests/run_all_tests.py`，环境和可选私人数据回放见验证文档。本次更新未执行该套件，不将历史测试结果作为当前版本全部通过的证据。
 
-## 历史版本说明（保留原文）
+## 原来版本
 
-以下为原公开版说明，六步校准与旧动作映射只适用于历史版本；当前用法以上文为准。
+以下是 v1.0.0 首次公开版的说明，与当前1.1.2不同。以后旧版内容统一标注为“原来版本”，当前使用方法见本文上方及使用说明.txt。
+
+<details>
+<summary>展开原来版本：v1.0.0 首次公开版</summary>
+
 
 # ESP32 Gesture Voice
 
@@ -89,3 +94,5 @@ python tests/run_all_tests.py
 ## 项目状态
 
 系统已完成离线输入分发、采样动作、个性化姿势和容错测试。真实佩戴、供电、网络和喇叭效果仍需根据具体硬件继续实测。
+
+</details>

@@ -31,3 +31,4 @@ verification/compile.log
 verification/results.json
 verification/source_hashes.json
 verification/manifest.json
+*.zip.sha256
