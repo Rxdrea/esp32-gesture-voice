@@ -4,7 +4,7 @@
 #include "GripModel.h"
 #include "MotionGuardModel.h"
 namespace fusion {
-constexpr float GRIP_PROBABILITY=.70f, MOTION_PROBABILITY=.50f;
+constexpr float GRIP_PROBABILITY=.50f, MOTION_PROBABILITY=.50f;
 class Core {
  public:
  bool update(uint32_t now,const fusion_features::Sample& s,bool valid,bool worn) {

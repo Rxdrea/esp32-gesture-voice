@@ -1,0 +1,29 @@
+{
+  "version": "1.2.2",
+  "date": "2026-11-06",
+  "fqbn": "esp32:esp32:esp32:PartitionScheme=default_8MB,FlashSize=8M,PSRAM=disabled",
+  "platform": "3.2.0-cn",
+  "arduino_cli": "0.29.0",
+  "builds": {
+    "sender": {
+      "exit_code": 0,
+      "program_bytes": 2713162,
+      "global_bytes": 100760,
+      "binary_bytes": 2713312,
+      "binary_sha256": "1cf4b5c99af6abb9435b28dd5ba0c021c7d2f5e025c2bba2d7262c0f462b8dea"
+    },
+    "receiver": {
+      "exit_code": 0,
+      "program_bytes": 899314,
+      "global_bytes": 45272,
+      "binary_bytes": 899456,
+      "binary_sha256": "b3ba972829e017c9641edf82759ce709d6dbe801838a432428b1436bc8d61383"
+    }
+  },
+  "web_syntax": "passed",
+  "embedded_page_matches": true,
+  "independent_source_review": "completed; no high-confidence publication blocker",
+  "hardware_flashed_this_release": false,
+  "cloud_called_this_release": false,
+  "tests_run_this_release": false
+}

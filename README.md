@@ -1,3 +1,51 @@
+# ESP32 Gesture Voice — 1.2.2 正式版
+
+定档日期：2026-11-06。经典ESP32上的手势辅助沟通与脑电无线控制实验系统。本次冻结当前源码，保留原来版本的Git历史及发布包。
+
+## 本版实现
+
+- 默认演示模式：画三角形显示并通过云端TTS播报“我想吃饭”，画Z播报“你们好啊”。两动作只参考MPU6050。
+- `m`切换九键拼音模式：上下保持连续选择、右侧翻确定、顺时针分隔、逆时针回退，肌电握拳提交联想。支持固定演示短语、本地拼音候选校验和中文播报。
+- 同Wi-Fi控制中心：浏览器访问OLED显示的设备IP，查看真实脑电、肌电趋势、IMU、识别状态与OLED内容；控制显示、扬声器、音量、演示/拼音模式。无需电脑串口桥接。
+- IMU成功读取后立即发布独立快照；页面区分正常、等待、读取异常、过期及语音/联想暂停，不伪造数据填补空缺。
+- 语音改为分块下载并播放，避免整段PCM申请大块连续内存失败。
+- 脑电经HC-04接收；专注度>70连续两包发送on，<50连续两包发送off，50～70保持。执行板GPIO2跟随26，25与26互斥；当前执行板保留300ms PWM软启动。
+- 保留500Hz肌电采样、三级LED、手机Wi-Fi/API配置及断电保存。
+
+## 开始使用
+
+1. 核心板打开 `GestureVoice/GestureVoice.ino`；执行板打开 `BrainReceiver/BrainReceiver.ino`。两块是独立程序，勿互相刷错。
+2. ESP32 Dev Module，8MB Flash，PSRAM Disabled，分区8M with spiffs（3MB APP/1.5MB SPIFFS）。不是ESP32-S3/C3目标。
+3. 依赖版本：Arduino ESP32 3.2.0-cn、U8g2 2.34.22、CheezsEMG 1.0.2、ArduinoJson 7.2.0；未验证其他组合。
+4. 首次连接开放热点 `ESP32`，打开 `http://192.168.4.1` 填写Wi-Fi及API密钥。随后手机/电脑与核心板连接同一局域网，访问OLED显示的IP。
+5. 上电先自然放松，等待就绪再做动作。USB串口115200，端口按本机实际选择；`m`切换模式，`p`查询状态，`e`查询脑电，`h`帮助。
+
+[下载正式版源码ZIP](https://github.com/Rxdrea/esp32-gesture-voice/releases/tag/v1.2.2) · [使用说明](docs/USAGE.md) · [模块分工](docs/ARCHITECTURE.md) · [验证边界](docs/VALIDATION.md) · [定档清单](docs/RELEASE-1.2.2.md)
+
+## 编译与维护
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Compile.ps1 -Target sender
+powershell -ExecutionPolicy Bypass -File .\Compile.ps1 -Target receiver
+```
+
+脚本仅编译，默认构建输出放在D盘；可用 `-BuildPath`、`-Cli`、`-ConfigFile`指定自己的路径。修改 `web/index.html` 后执行 `python -B tools/embed_page.py` 再编译。网页已内嵌，正常使用不需要运行Python服务。
+
+## 发布范围与限制
+
+公开包包含两端固件源码、已导出模型、网页和必要工具、许可与说明。`PrivateConfig.h`由空模板生成，真实配置只在设备网页输入。不包含原始生理/动作数据、私人对话、设备MAC、私人调试地址、个人备份或带凭据固件。
+
+这是当前工程的正式归档，不代表所有实物场景已验收。识别仍可能误触或拒识；同步云端请求期间IMU会暂停；无线面板没有执行板的物理动作回执。云模型可用性取决于账号及服务商，代码当前使用 `qwen3.7-flash`、`cosyvoice-v3-flash` / `longxiaochun_v3`，本次没有发起云调用。
+
+局域网控制中心无公网账号认证；现有HTTPS沿用setInsecure。仅在可信局域网使用，不要直接映射公网。原来版本的tests/verification保留用于追溯，未适配本版，不作为1.2.2验证入口。
+
+
+---
+
+## 原来版本：1.1.2及更早记录
+
+以下原文保留追溯，不代表1.2.2当前参数或验收结果。
+
 # ESP32 Gesture Voice — 1.1.2 模型拼音版
 
 经典 ESP32 + MPU6050 + 单通道肌电实现拼音输入、中文候选联想和语音播报。当前版本将本地分类模型接入拼音业务，并支持保持上下翘连续选择。

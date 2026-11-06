@@ -1,0 +1,185 @@
+{
+  "version": "1.2.2",
+  "date": "2026-11-06",
+  "files": [
+    {
+      "path": "GestureVoice/BrainDecision.h",
+      "source_sha256": "bd12aeb06bbf8c11eb81adecd711035c4816a6fb9186a75ebed487bb5a725b7f",
+      "published_sha256": "bd12aeb06bbf8c11eb81adecd711035c4816a6fb9186a75ebed487bb5a725b7f",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/BrainProtocol.h",
+      "source_sha256": "bcbfc3c0116b01c5a766e023abd6954e8c04f312bdbc598a320ee2d0bf8ea548",
+      "published_sha256": "bcbfc3c0116b01c5a766e023abd6954e8c04f312bdbc598a320ee2d0bf8ea548",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/BrainRemote.h",
+      "source_sha256": "740c5841c7cd605fc71a13d9f244efda0470121c974f00c9d55e82e12de68cdc",
+      "published_sha256": "740c5841c7cd605fc71a13d9f244efda0470121c974f00c9d55e82e12de68cdc",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/ControlCenter.h",
+      "source_sha256": "4bae43ead382536148d1a0812f524b458fa356bcd64a2b36a767fa62ac5448eb",
+      "published_sha256": "4bae43ead382536148d1a0812f524b458fa356bcd64a2b36a767fa62ac5448eb",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/ControlCenterPage.h",
+      "source_sha256": "49abfef1665e56aae68edb81bf176ef3dbc6eccf3fe179dd58f94922fa35c570",
+      "published_sha256": "49abfef1665e56aae68edb81bf176ef3dbc6eccf3fe179dd58f94922fa35c570",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/DemoDisplay.h",
+      "source_sha256": "18335cdbfbf258ae7d60de7af7c44482a327497b9df11c55f965b72f4083fb5e",
+      "published_sha256": "18335cdbfbf258ae7d60de7af7c44482a327497b9df11c55f965b72f4083fb5e",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/DemoFeatures.h",
+      "source_sha256": "0f34face9f86741055b05a2a3122b64adc25170a2be137f3ef893b612be59f07",
+      "published_sha256": "0f34face9f86741055b05a2a3122b64adc25170a2be137f3ef893b612be59f07",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/DemoModel.h",
+      "source_sha256": "b9cdc85e1d9e1b006d0d608f811161d63b5a025d01f1f43203bc11cdf5c48c1f",
+      "published_sha256": "b9cdc85e1d9e1b006d0d608f811161d63b5a025d01f1f43203bc11cdf5c48c1f",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/DemoRecognizer.h",
+      "source_sha256": "9cd8b754b80e4e4b93c52119d4b107aa64fcb78458a18bec506406aa708da562",
+      "published_sha256": "9cd8b754b80e4e4b93c52119d4b107aa64fcb78458a18bec506406aa708da562",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/EmgRecognition.h",
+      "source_sha256": "96bd614a015dcca43ed2550b2d3830ba41123993b20708b1ee372a31c7b694e6",
+      "published_sha256": "96bd614a015dcca43ed2550b2d3830ba41123993b20708b1ee372a31c7b694e6",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/FusionCore.h",
+      "source_sha256": "dfeaf961589dbe7f6228c899570649b7c54e7ab279dd0d7617de1a5925c8850b",
+      "published_sha256": "dfeaf961589dbe7f6228c899570649b7c54e7ab279dd0d7617de1a5925c8850b",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/FusionFeatures.h",
+      "source_sha256": "dd39631f36e833d21eb209d6afb489e4bdeb35d27d2763dd8c64cad367c5a39d",
+      "published_sha256": "dd39631f36e833d21eb209d6afb489e4bdeb35d27d2763dd8c64cad367c5a39d",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/GestureVoice.ino",
+      "source_sha256": "a1f055c3b960ab6a0ac4aeddce57723927e6ba5ede55c1bfa67860aca51d1f52",
+      "published_sha256": "2ee0df09d47633b434417745708ffa3aa63443d7070bbca094f2cebe6cd90468",
+      "same_as_source": false
+    },
+    {
+      "path": "GestureVoice/GripModel.h",
+      "source_sha256": "5aa81cb208006b604a827c030df173f0a17ea6d5733188d5692f6797f6ee4fd9",
+      "published_sha256": "5aa81cb208006b604a827c030df173f0a17ea6d5733188d5692f6797f6ee4fd9",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/HoldScroll.h",
+      "source_sha256": "61e5513c813e7ff77c6b6201d07028b0d55fcf03c004c61a07d7181807d6c3ad",
+      "published_sha256": "61e5513c813e7ff77c6b6201d07028b0d55fcf03c004c61a07d7181807d6c3ad",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/InputRouter.h",
+      "source_sha256": "583a46694f8e9272666264c940f89f771ff60e67e5b25e110416524dfb22710f",
+      "published_sha256": "583a46694f8e9272666264c940f89f771ff60e67e5b25e110416524dfb22710f",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/MlGestureSensor.h",
+      "source_sha256": "786796d8cdfa93bd81f540bb31f37a5305399727bd17019403e6e5c30f865554",
+      "published_sha256": "786796d8cdfa93bd81f540bb31f37a5305399727bd17019403e6e5c30f865554",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/MotionGuardModel.h",
+      "source_sha256": "8800ac879e00a5d1ca0e14ec201b0a364e13f34a48890a168e8b80f862104822",
+      "published_sha256": "8800ac879e00a5d1ca0e14ec201b0a364e13f34a48890a168e8b80f862104822",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/PinyinGuard.h",
+      "source_sha256": "2017fb270e4c3586b2b0b3d62276006affa28d4abbe969afb8d5930b79b00820",
+      "published_sha256": "2017fb270e4c3586b2b0b3d62276006affa28d4abbe969afb8d5930b79b00820",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/PinyinTable.h",
+      "source_sha256": "83181114504dc6baf193243f5e5a2e23dc20324532287819fd7edf35b2167754",
+      "published_sha256": "83181114504dc6baf193243f5e5a2e23dc20324532287819fd7edf35b2167754",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/WristModel.h",
+      "source_sha256": "05857427f51e1a91b151947a29560a77982ed21e3f9d4b1de1243fdf6c67255b",
+      "published_sha256": "05857427f51e1a91b151947a29560a77982ed21e3f9d4b1de1243fdf6c67255b",
+      "same_as_source": true
+    },
+    {
+      "path": "GestureVoice/WristMotionGate.h",
+      "source_sha256": "9d3783c3a744f18264eec6e69729de379896085a6d20a728fb71d5d6bb32898c",
+      "published_sha256": "9d3783c3a744f18264eec6e69729de379896085a6d20a728fb71d5d6bb32898c",
+      "same_as_source": true
+    },
+    {
+      "path": "BrainReceiver/BrainProtocol.h",
+      "source_sha256": "bcbfc3c0116b01c5a766e023abd6954e8c04f312bdbc598a320ee2d0bf8ea548",
+      "published_sha256": "bcbfc3c0116b01c5a766e023abd6954e8c04f312bdbc598a320ee2d0bf8ea548",
+      "same_as_source": true
+    },
+    {
+      "path": "BrainReceiver/BrainReceiver.ino",
+      "source_sha256": "6cfb9259cf574e8294a06babd77ccde5aba73e6f0ea14f33bfe6d92773c0ab19",
+      "published_sha256": "6cfb9259cf574e8294a06babd77ccde5aba73e6f0ea14f33bfe6d92773c0ab19",
+      "same_as_source": true
+    },
+    {
+      "path": "web/index.html",
+      "source_sha256": "495d7089d117ccb799188f0014dea82482dfbe8347196381c1405125a0362ee9",
+      "published_sha256": "495d7089d117ccb799188f0014dea82482dfbe8347196381c1405125a0362ee9",
+      "same_as_source": true
+    },
+    {
+      "path": "tools/embed_page.py",
+      "source_sha256": "f8d2c7aaa2bc4513a9a1b3cc213758f6940329468938cd7c6772e0d80b88d441",
+      "published_sha256": "f8d2c7aaa2bc4513a9a1b3cc213758f6940329468938cd7c6772e0d80b88d441",
+      "same_as_source": true
+    },
+    {
+      "path": "tools/preview.py",
+      "source_sha256": "ca3d9f48fab339711ad7001aab995b1cbffaf9b63666aa2341619b18367f94da",
+      "published_sha256": "ca3d9f48fab339711ad7001aab995b1cbffaf9b63666aa2341619b18367f94da",
+      "same_as_source": true
+    },
+    {
+      "path": "third_party/pypinyin-LICENSE.txt",
+      "source_sha256": "1e6c90014b4912815c296ee64bb6f6280af47e6d4c5d80e86232dfc5defe764c",
+      "published_sha256": "1e6c90014b4912815c296ee64bb6f6280af47e6d4c5d80e86232dfc5defe764c",
+      "same_as_source": true
+    },
+    {
+      "path": "third_party/README.md",
+      "source_sha256": "ed37e6da4ab130988c3673ac3acb1b9bdde025b025924f55fbacab9526c0e622",
+      "published_sha256": "ed37e6da4ab130988c3673ac3acb1b9bdde025b025924f55fbacab9526c0e622",
+      "same_as_source": true
+    }
+  ],
+  "public_changes": [
+    "GestureVoice/PrivateConfig.h新建空模板，未读取来源配置",
+    "GestureVoice/GestureVoice.ino清空私人调试地址并增加空地址禁入"
+  ],
+  "original_private_config_read": false
+}

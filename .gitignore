@@ -32,3 +32,10 @@ verification/results.json
 verification/source_hashes.json
 verification/manifest.json
 *.zip.sha256
+
+# Release local state and private logs
+*.log
+*.local.*
+node_modules/
+datasets/
+release-work/
